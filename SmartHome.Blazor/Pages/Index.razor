@@ -1,0 +1,27 @@
+﻿@page "/"
+
+<div class="container">
+    <h1 class="mt-5">Smart Home, AI!</h1>    
+    <h2 class="mt-5">Home Devices</h2>
+    <div class="devices mt-4">
+        <div class=" row">
+            <div class="col card device @(HomeDevices.TV.IsOn?"on":"off")" @onclick=@(()=>{HomeDevices.TV.IsOn = !HomeDevices.TV.IsOn;})>@nameof(HomeDevices.TV) (@HomeDevices.TV.Power) W</div>
+            <div class="col card device @(HomeDevices.Refrigerator.IsOn?"on":"off")" @onclick=@(()=>{ HomeDevices.Refrigerator.IsOn = !HomeDevices.Refrigerator.IsOn;})>@nameof(HomeDevices.Refrigerator) (@HomeDevices.Refrigerator.Power) W</div>
+            <div class="col card device @(HomeDevices.Heater.IsOn?"on":"off")" @onclick=@(()=>{ HomeDevices.Heater.IsOn = !HomeDevices.Heater.IsOn;})>@nameof(HomeDevices.Heater) (@HomeDevices.Heater.Power) W</div>
+        </div>
+        <div class=" row">
+            <div class="col card device @(HomeDevices.kitchenLight.IsOn?"on1":"off")" @onclick=@(()=>{HomeDevices.kitchenLight.IsOn = !HomeDevices.kitchenLight.IsOn;})>@nameof(HomeDevices.kitchenLight) (@HomeDevices.kitchenLight.Power) W</div>
+            <div class="col card device @(HomeDevices.SittingRoomLight.IsOn?"on1":"off")" @onclick=@(()=>{ HomeDevices.SittingRoomLight.IsOn = !HomeDevices.SittingRoomLight.IsOn;})>@nameof(HomeDevices.SittingRoomLight) (@HomeDevices.SittingRoomLight.Power) W</div>
+            <div class="col card device @(HomeDevices.BedroomLight.IsOn?"on1":"off")" @onclick=@(()=>{ HomeDevices.BedroomLight.IsOn = !HomeDevices.BedroomLight.IsOn;})>@nameof(HomeDevices.BedroomLight) (@HomeDevices.BedroomLight.Power) W</div>
+        </div>
+    </div>
+    <hr />
+    <h2 class="mt-5">Chat</h2>
+    <div class="chat-history">
+        @((MarkupString)ChatHistoryLog.ToString())
+    </div>
+    <div class="d-flex justify-content-between input-section mt-4">
+        <input type="text" class="form-control" @bind-value=UserMessage />
+        <button class="btn btn-primary ms-2" @onclick=HandleSubmitMessage> Send</button>
+    </div>
+</div>
