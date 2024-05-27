@@ -2,26 +2,58 @@
 
 <div class="container">
     <h1 class="mt-5">Smart Home, AI!</h1>
-    <h2 class="mt-5">Home Devices</h2>
+    <h2 class="mt-5">Devices</h2>
     <div class="devices mt-4">
-        <div class=" row">
-            <div class="col card device @(HomeDevices.TV.IsOn?"on":"off")" @onclick=@(()=>{HomeDevices.TV.IsOn = !HomeDevices.TV.IsOn;})>TV (@HomeDevices.TV.Power) Watt</div>
-            <div class="col card device @(HomeDevices.Refrigerator.IsOn?"on":"off")" @onclick=@(()=>{ HomeDevices.Refrigerator.IsOn = !HomeDevices.Refrigerator.IsOn;})>Refrigerator (@HomeDevices.Refrigerator.Power) Watt</div>
-            <div class="col card device @(HomeDevices.Heater.IsOn?"on":"off")" @onclick=@(()=>{ HomeDevices.Heater.IsOn = !HomeDevices.Heater.IsOn;})>Heater (@HomeDevices.Heater.Power) Watt</div>
-        </div>
-        <div class=" row">
-            <div class="col card device @(HomeDevices.kitchenLight.IsOn?"on1":"off")" @onclick=@(()=>{HomeDevices.kitchenLight.IsOn = !HomeDevices.kitchenLight.IsOn;})>kitchen Light (@HomeDevices.kitchenLight.Power) Watt</div>
-            <div class="col card device @(HomeDevices.SittingRoomLight.IsOn?"on1":"off")" @onclick=@(()=>{ HomeDevices.SittingRoomLight.IsOn = !HomeDevices.SittingRoomLight.IsOn;})>Sitting Room Light (@HomeDevices.SittingRoomLight.Power) Watt</div>
-            <div class="col card device @(HomeDevices.BedroomLight.IsOn?"on1":"off")" @onclick=@(()=>{ HomeDevices.BedroomLight.IsOn = !HomeDevices.BedroomLight.IsOn;})>Bedroom Light (@HomeDevices.BedroomLight.Power) Watt</div>
+        <div class="row">
+            @foreach (var device in HomeDevices.Devices)
+            {
+                var name = device.Key;
+                var info = device.Value;
+                <div class="col-4 p-1">
+                    <div class="p-3 card device @(info.IsOn?"on":"off")" @onclick=@(()=>{info.IsOn = !info.IsOn;})>
+                        <i class="@info.Icon"></i>
+                        @name (@info.Power) Watt
+                    </div>
+                </div>
+            }
         </div>
     </div>
     <hr />
-    <h2 class="mt-5">Chat</h2>
+    <h2 class="mt-5">AI Chat</h2>
     <div class="chat-history">
         @((MarkupString)ChatHistoryLog.ToString())
     </div>
     <div class="d-flex justify-content-between input-section mt-4">
-        <input type="text" class="form-control" @bind-value=UserMessage @onkeydown=@(async (e)=>{if(e.Code=="Enter") await HandleSubmitMessage(); }) />
-        <button class="btn btn-primary ms-2" @onclick=HandleSubmitMessage> Send</button>
+        <input placeholder="Message ChatGPT" disabled="@Processing" type="text" class="form-control" @bind-value=UserMessage />
+        <button disabled="@Processing" class="btn btn-primary ms-2" @onclick=HandleSubmitMessage>
+            @if (Processing)
+            {
+                <span>Processing...</span>
+            }
+            else
+            {
+                <span>
+                    <i class="fas fa-paper-plane"></i>
+                </span>
+            }
+        </button>
     </div>
+    @if (EmailInbox.Emails.Any())
+    {
+        <hr />
+        <h2 class="mt-5">Inbox</h2>
+        <div class="mt-3">
+            @{
+                int index = 1;
+            }
+            @foreach (var email in EmailInbox.Emails)
+            {
+                <div class="card p-3 bg-light mb-2">
+                    <span>Email @index</span>
+                    @((MarkupString)email)
+                </div>
+                index++;
+            }
+        </div>
+    }
 </div>

@@ -4,12 +4,15 @@
     {
         public bool IsOn { get; set; }
 
-        public int Power { get;}
+        public int Power { get; }
 
-        public Device(int power,bool isOn = false)
+        public string? Icon { get; }
+
+        public Device(int power, bool isOn = false, string icon = null)
         {
             IsOn = isOn;
             Power = power;
+            Icon = icon;
         }
     }
 }

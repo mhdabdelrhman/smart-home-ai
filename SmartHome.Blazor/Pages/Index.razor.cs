@@ -12,6 +12,8 @@ public partial class Index : ComponentBase
 {
     [Inject] Kernel Kernel { get; set; } = default!;
 
+    [Inject] EmailInbox EmailInbox { get; set; } = default!;
+
     [Inject] HomeDevices HomeDevices { get; set; } = default!;
 
     [Inject] IConfiguration Configuration { get; set; } = default!;
@@ -19,6 +21,8 @@ public partial class Index : ComponentBase
     StringBuilder ChatHistoryLog { get; set; } = new(string.Empty);
 
     string UserMessage { get; set; } = string.Empty;
+
+    bool Processing { get; set; } = false;
 
     KernelFunction Prompt = default!;
 
@@ -59,15 +63,24 @@ public partial class Index : ComponentBase
         if (UserMessage == string.Empty)
             return;
 
-        var text = UserMessage;
-        UserMessage = string.Empty;
+        Processing = true;
+        try
+        {
+            var text = UserMessage;
+            UserMessage = string.Empty;
 
-        AppendChat(text, true);
-        var result = await AskAIAsync(text);
-        if (!string.IsNullOrEmpty(result))
-            AppendChat(result, false);
-        else
-            AppendChat("No Results!!!", false);
+            AppendChat(text, true);
+            var result = await AskAIAsync(text);
+            if (!string.IsNullOrEmpty(result))
+                AppendChat(result, false);
+            else
+                AppendChat("No Suggestions!!!", false);
+        }
+        finally
+        {
+            Processing = false;
+            UserMessage = string.Empty;
+        }
     }
 
     private async Task<string?> AskAIAsync(string input)
@@ -116,9 +129,12 @@ public partial class Index : ComponentBase
 
     private void AppendChat(string text, bool isUser)
     {
-        var chat = $"""
-            <div class="mt-2 d-flex {(isUser ? "justify-content-end" : "justify-content-start")}">
-                <div class="chat {(isUser ? "bg-light" : "bg-secondary text-white")}">{text}</div>
+        var chat = $"""            
+            <div class="mt-2 d-flex justify-content-start {(isUser ? "flex-row-reverse" : "")}">
+                <i class="fas {(isUser ? "fa-user m-2 text-success" : "fa-robot m-2 text-primary")}"></i>    
+                <div class="chat {(isUser ? "bg-light" : "bg-secondary text-white")}">                                
+                    {text}
+                </div>
             </div>
             """;
         ChatHistoryLog.AppendLine(chat);

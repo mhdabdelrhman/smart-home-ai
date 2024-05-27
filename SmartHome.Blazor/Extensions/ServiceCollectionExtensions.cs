@@ -11,14 +11,18 @@ namespace SmartHome.Blazor.Extensions
             var model = configuration["model"];
             var apiKey = configuration["apiKey"];
 
+            EmailInbox emailInbox = new();
             HomeDevices homeDevices = new();
 
+            services.AddSingleton(emailInbox);
             services.AddSingleton(homeDevices);
 
             var kernelBuilder = Kernel.CreateBuilder();
+            kernelBuilder.Plugins.AddFromObject(new EmailPlugin(emailInbox));
             kernelBuilder.Plugins.AddFromObject(new HomePlugin(homeDevices));
+
             kernelBuilder.Services.AddLogging(c => c.SetMinimumLevel(LogLevel.Information));
-            kernelBuilder.Services.AddOpenAIChatCompletion(modelId: model, apiKey: apiKey, orgId: "", serviceId: model);
+            kernelBuilder.Services.AddOpenAIChatCompletion(modelId: model!, apiKey: apiKey!, orgId: "", serviceId: model);
 
             Kernel kernel = kernelBuilder.Build();
             services.AddSingleton(kernel);
