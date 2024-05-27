@@ -34,10 +34,10 @@ h1:focus {
 
 .device {
     margin: 1rem;
-    min-height: 5rem;
+    min-height: 4rem;
     color: var(--bs-gray-100) !important;
-    cursor:pointer;
-    font-weight:500;
+    cursor: pointer;
+    font-weight: 500;
 }
 
 .on {
