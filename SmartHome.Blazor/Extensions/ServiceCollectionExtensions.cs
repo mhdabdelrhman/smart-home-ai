@@ -18,6 +18,7 @@ namespace SmartHome.Blazor.Extensions
             services.AddSingleton(homeDevices);
 
             var kernelBuilder = Kernel.CreateBuilder();
+            kernelBuilder.Plugins.AddFromType<TimePlugin>();
             kernelBuilder.Plugins.AddFromObject(new EmailPlugin(emailInbox));
             kernelBuilder.Plugins.AddFromObject(new HomePlugin(homeDevices));
 
