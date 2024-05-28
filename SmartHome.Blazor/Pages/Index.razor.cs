@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
@@ -8,7 +9,7 @@ using System.Text;
 
 namespace SmartHome.Blazor.Pages;
 
-public partial class Index : ComponentBase
+public partial class Index : ComponentBase, IDisposable
 {
     [Inject] Kernel Kernel { get; set; } = default!;
 
@@ -16,21 +17,30 @@ public partial class Index : ComponentBase
 
     [Inject] HomeDevices HomeDevices { get; set; } = default!;
 
+    [Inject] IJSRuntime JSRuntime { get; set; } = default!;
+
     [Inject] IConfiguration Configuration { get; set; } = default!;
 
     StringBuilder ChatHistoryLog { get; set; } = new(string.Empty);
 
-    string UserMessage { get; set; } = string.Empty;
+    string UserInput { get; set; } = string.Empty;
 
     bool Processing { get; set; } = false;
 
     KernelFunction Prompt = default!;
 
-    ChatHistory chatMessages = new();
+    ChatHistory ChatMessages = new();
 
+    Timer Timer = default!;
+
+    DateTime CurrentTime = DateTime.Now;
     protected override async Task OnInitializedAsync()
     {
         await LoadPromptsAsync();
+        Timer = new Timer(_ =>
+        {
+            CurrentTime = DateTime.Now;
+        }, null, 1000, 2000);
     }
 
     private Task LoadPromptsAsync()
@@ -60,32 +70,32 @@ public partial class Index : ComponentBase
 
     private async Task HandleSubmitMessage()
     {
-        if (UserMessage == string.Empty)
+        if (UserInput == string.Empty)
             return;
 
         Processing = true;
         try
         {
-            var text = UserMessage;
-            UserMessage = string.Empty;
+            var text = UserInput;
+            UserInput = string.Empty;
 
-            AppendChat(text, true);
+            await AppendChat(text, true);
             var result = await AskAIAsync(text);
             if (!string.IsNullOrEmpty(result))
-                AppendChat(result, false);
+                await AppendChat(result, false);
             else
-                AppendChat("No Suggestions!!!", false);
+                await AppendChat("No Suggestions!!!", false);
         }
         finally
         {
             Processing = false;
-            UserMessage = string.Empty;
+            UserInput = string.Empty;
         }
     }
 
     private async Task<string?> AskAIAsync(string input)
     {
-        chatMessages.AddUserMessage(input);
+        ChatMessages.AddUserMessage(input);
 
         OpenAIPromptExecutionSettings openAIPromptExecutionSettings = new()
         {
@@ -95,10 +105,10 @@ public partial class Index : ComponentBase
         var result = Kernel.InvokeStreamingAsync<StreamingChatMessageContent>(
             Prompt,
             arguments: new(openAIPromptExecutionSettings) {
-            { "messages", chatMessages }
+            { "messages", ChatMessages }
             });
 
-        // Print the chat completions
+        // Read the chat completions
         ChatMessageContent? chatMessageContent = null;
         await foreach (var content in result)
         {
@@ -119,7 +129,7 @@ public partial class Index : ComponentBase
         }
         if (chatMessageContent != null)
         {
-            chatMessages.AddMessage(chatMessageContent.Role, chatMessageContent.Content!);
+            ChatMessages.AddMessage(chatMessageContent.Role, chatMessageContent.Content!);
         }
 
         var model = Configuration["model"];
@@ -127,7 +137,7 @@ public partial class Index : ComponentBase
         return chatMessageContent?.Content?.Replace(model!, "");
     }
 
-    private void AppendChat(string text, bool isUser)
+    private async Task AppendChat(string text, bool isUser)
     {
         var chat = $"""            
             <div class="mt-2 d-flex justify-content-start {(isUser ? "flex-row-reverse" : "")}">
@@ -138,5 +148,14 @@ public partial class Index : ComponentBase
             </div>
             """;
         ChatHistoryLog.AppendLine(chat);
+        StateHasChanged();
+
+        await Task.Delay(250);
+        await JSRuntime.InvokeVoidAsync("scrollChatDown");
+    }
+
+    public void Dispose()
+    {
+        Timer?.Dispose();
     }
 }

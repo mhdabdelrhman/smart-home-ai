@@ -63,17 +63,17 @@ public class HomePlugin
 
     [KernelFunction("GetKitchenLightState")]
     [Description("Gets the state of the Kitchen Light.")]
-    public string GetKitchenLightState() => _devices.kitchenLight.IsOn ? "on" : "off";
+    public string GetKitchenLightState() => _devices.KitchenLight.IsOn ? "on" : "off";
 
     [KernelFunction("GetKitchenLightPower")]
     [Description("Gets the power of the Kitchen Light in Watt.")]
-    public string GetKitchenLightPower() => $"{_devices.kitchenLight.Power} Watt";
+    public string GetKitchenLightPower() => $"{_devices.KitchenLight.Power} Watt";
 
     [KernelFunction("ChangeKitchenLightState")]
     [Description("Changes the state of the Kitchen Light.")]
     public string ChangeKitchenLightState(bool newState)
     {
-        _devices.kitchenLight.IsOn = newState;
+        _devices.KitchenLight.IsOn = newState;
         return GetKitchenLightState();
     }
 

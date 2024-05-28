@@ -8,7 +8,7 @@
 
         public Device Refrigerator { get; }
 
-        public Device kitchenLight { get; }
+        public Device KitchenLight { get; }
 
         public Device BedroomLight { get; }
 
@@ -18,8 +18,8 @@
         {
             TV = new Device(110, icon: "fas fa-tv");
             Heater = new Device(500, icon: "fas fa-fire");
-            Refrigerator = new Device(300, true, "fas fa-snowflake");
-            kitchenLight = new Device(40, icon: "fas fa-lightbulb");
+            Refrigerator = new Device(300, icon: "fas fa-snowflake");
+            KitchenLight = new Device(40, icon: "fas fa-lightbulb");
             BedroomLight = new Device(10, icon: "fas fa-bed");
             SittingRoomLight = new Device(80, icon: "fas fa-couch");
         }
@@ -28,7 +28,7 @@
             {"TV",TV },
             {"Heater",Heater },
             {"Refrigerator",Refrigerator },
-            {"kitchen Light",kitchenLight },
+            {"Kitchen Light",KitchenLight },
             {"Bedroom Light",BedroomLight },
             {"Sitting Room Light",SittingRoomLight },
         };
